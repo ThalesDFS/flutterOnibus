@@ -1,0 +1,122 @@
+{
+  "project_info": {
+    "project_number": "520150218697",
+    "firebase_url": "https://involucrata-ad0c2.firebaseio.com",
+    "project_id": "involucrata-ad0c2",
+    "storage_bucket": "involucrata-ad0c2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:520150218697:android:d74d587462dcde03",
+        "android_client_info": {
+          "package_name": "com.involucrata.involucrata"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "520150218697-it19e6ufjnl88evqiaqo267isr6h6lgg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.involucrata.involucrata",
+            "certificate_hash": "7672ffea2adf0618326b8dc617017dfaa791b0f3"
+          }
+        },
+        {
+          "client_id": "520150218697-dabqsbutnd9292abkn88frpki656en3l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUQkjekvZuVmj0j9lv9Ax07NwPQH_XzHQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "520150218697-dabqsbutnd9292abkn88frpki656en3l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:520150218697:android:5732855ca016d8bf",
+        "android_client_info": {
+          "package_name": "com.involucrata.involucrata.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "520150218697-4n7pu1vmdkp5si60rtvfp601j68o0u0j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.involucrata.involucrata.debug",
+            "certificate_hash": "7672ffea2adf0618326b8dc617017dfaa791b0f3"
+          }
+        },
+        {
+          "client_id": "520150218697-dabqsbutnd9292abkn88frpki656en3l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUQkjekvZuVmj0j9lv9Ax07NwPQH_XzHQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "520150218697-dabqsbutnd9292abkn88frpki656en3l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:520150218697:android:2a002e8784f5faa5",
+        "android_client_info": {
+          "package_name": "com.involucrata.involucratax"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "520150218697-0nmjkml1mkk7fekkbdmiut0b7km71h9l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.involucrata.involucratax",
+            "certificate_hash": "7672ffea2adf0618326b8dc617017dfaa791b0f3"
+          }
+        },
+        {
+          "client_id": "520150218697-dabqsbutnd9292abkn88frpki656en3l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAUQkjekvZuVmj0j9lv9Ax07NwPQH_XzHQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "520150218697-dabqsbutnd9292abkn88frpki656en3l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

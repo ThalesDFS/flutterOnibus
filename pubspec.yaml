@@ -31,7 +31,7 @@ dependencies:
   location: ^2.3.5
   google_maps_flutter: ^0.5.13
   geoflutterfire: ^2.0.3+4
-
+  firebase_storage: ^3.0.0
 
 dev_dependencies:
   flutter_test:

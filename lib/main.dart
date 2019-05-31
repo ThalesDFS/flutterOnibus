@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter/services.dart';
 import 'package:involucrata/Escolha.dart';
+import 'package:involucrata/Escolha2.dart';
 
 void main() {
   SystemChrome.setPreferredOrientations([
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
               future: FirebaseAuth.instance.currentUser(),
               builder: (context, AsyncSnapshot<FirebaseUser> snapshot) {
                 if (snapshot.hasData) {
-                  return FireMap();
+                  return MyApp3();
                 } else {
                   return LoginScreen();
                 }

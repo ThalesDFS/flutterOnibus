@@ -65,6 +65,7 @@ class AuthService{
         'photoURL': user.photoUrl,
         'displayName': user.displayName,
         'lastSeen': DateTime.now(),
+        'atual': 'vazio'
       }, merge: true);
   }
   void signOut(){

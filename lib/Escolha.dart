@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:location/location.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:ui';
+import 'package:involucrata/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/rendering.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 import 'dart:io';
+import 'main.dart';
 //import 'package:bar2/atualizaBar.dart';
 
 //import 'config.dart'
@@ -26,10 +28,10 @@ class MyApp2 extends StatefulWidget {
 class _MyAppState extends State<MyApp2> {
   LocationData _startLocation;
   LocationData _currentLocation;
-
+  String onibus = null;
   StreamSubscription<LocationData> _locationSubscription;
 
-  Location _locationService  = new Location();
+  Location _locationService = new Location();
   bool _permission = false;
   String error;
 
@@ -37,8 +39,8 @@ class _MyAppState extends State<MyApp2> {
 
   Completer<GoogleMapController> _controller = Completer();
   static final CameraPosition _initialCamera = CameraPosition(
-    target: LatLng(0, 0),
-    zoom: 4,
+    target: LatLng(-30.0333496, -51.2299755),
+    zoom: 11.50,
   );
 
   CameraPosition _currentCameraPosition;
@@ -54,7 +56,8 @@ class _MyAppState extends State<MyApp2> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   initPlatformState() async {
-    await _locationService.changeSettings(accuracy: LocationAccuracy.HIGH, interval: 1000);
+    await _locationService.changeSettings(
+        accuracy: LocationAccuracy.HIGH, interval: 1000);
 
     LocationData location;
     // Platform messages may fail, so we use a try/catch PlatformException.
@@ -67,15 +70,16 @@ class _MyAppState extends State<MyApp2> {
         if (_permission) {
           location = await _locationService.getLocation();
 
-          _locationSubscription = _locationService.onLocationChanged().listen((LocationData result) async {
+          _locationSubscription = _locationService
+              .onLocationChanged()
+              .listen((LocationData result) async {
             _currentCameraPosition = CameraPosition(
-                target: LatLng(result.latitude, result.longitude),
-                zoom: 16
-            );
+                target: LatLng(result.latitude, result.longitude), zoom: 16);
 
             final GoogleMapController controller = await _controller.future;
-            controller.animateCamera(CameraUpdate.newCameraPosition(_currentCameraPosition));
-            if(mounted){
+           /* controller.animateCamera(
+                CameraUpdate.newCameraPosition(_currentCameraPosition));*/
+            if (mounted) {
               setState(() {
                 _currentLocation = result;
               });
@@ -85,7 +89,7 @@ class _MyAppState extends State<MyApp2> {
       } else {
         bool serviceStatusResult = await _locationService.requestService();
         print("Service status activated after request: $serviceStatusResult");
-        if(serviceStatusResult){
+        if (serviceStatusResult) {
           initPlatformState();
         }
       }
@@ -102,36 +106,38 @@ class _MyAppState extends State<MyApp2> {
     setState(() {
       _startLocation = location;
     });
-
   }
 
   slowRefresh() async {
     _locationSubscription.cancel();
-    await _locationService.changeSettings(accuracy: LocationAccuracy.BALANCED, interval: 10000);
-    _locationSubscription = _locationService.onLocationChanged().listen((LocationData result) {
-      if(mounted){
-        setState(() {
-          _currentLocation = result;
+    await _locationService.changeSettings(
+        accuracy: LocationAccuracy.BALANCED, interval: 10000);
+    _locationSubscription =
+        _locationService.onLocationChanged().listen((LocationData result) {
+          if (mounted) {
+            setState(() {
+              _currentLocation = result;
+            });
+            teste();
+          }
         });
-        teste();
-      }
-    });
   }
- bool oi = false;
+
+  bool oi = false;
   bool delay = false;
+  Set<Marker> markers = Set();
+
   @override
   Widget build(BuildContext context) {
     List<Widget> widgets;
-    if(oi == true){
-      if(delay == false) {
+    if (oi == true) {
+      if (delay == false) {
         delay = true;
-        Future.delayed(const Duration(seconds: 5), () {
-            teste();
-            delay = false;
+        Future.delayed(const Duration(seconds: 4), () {
+          atualizaPosicao();
+          delay = false;
         });
       }
-
-
     }
     googleMap = GoogleMap(
       mapType: MapType.normal,
@@ -140,90 +146,351 @@ class _MyAppState extends State<MyApp2> {
       onMapCreated: (GoogleMapController controller) {
         _controller.complete(controller);
       },
-
+      markers: markers,
     );
 
     widgets = [
-      Center(
-        child: SizedBox(
-            height: 300.0,
-            child: googleMap
-        ),
-      ),
+
+        //child: SizedBox(height: 300.0, child: googleMap),
+         googleMap
+
     ];
 
-
-    widgets.add(new Center(
+   /* widgets.add(new Center(
         child: new Text(_startLocation != null
-            ? 'Start location: ${_startLocation.latitude} & ${_startLocation.longitude}\n'
+            ? 'Localização inicial: ${_startLocation
+            .latitude} & ${_startLocation.longitude}\n'
             : 'Error: $error\n')));
 
     widgets.add(new Center(
-        child: new Text(_currentLocation != null
-            ? 'Continuous location: \nlat: ${_currentLocation.latitude} & long: ${_currentLocation.longitude} \nalt: ${_currentLocation.altitude}m\n'
-            : 'Error: $error\n', textAlign: TextAlign.center)));
+        child: new Text(
+            _currentLocation != null
+                ? 'Localizacao indo: \nlat: ${_currentLocation
+                .latitude} & long: ${_currentLocation
+                .longitude} \nalt: ${_currentLocation.altitude}m\n'
+                : 'Error: $error\n',
+            textAlign: TextAlign.center)));*/
 
-   /* widgets.add(new Center(
+    /* widgets.add(new Center(
         child: new Text(_permission
             ? 'Has permission : Yes'
             : "Has permission : No")));*/
 
-   /* widgets.add(new Center(
+    /* widgets.add(new Center(
         child: new RaisedButton(
             child: new Text("Slow refresh rate and accuracy"),
             onPressed: () => slowRefresh()
         )
     ));*/
 
-    return
-       new Scaffold(
-          appBar: new AppBar(
-            title: new Text('Location plugin example app'),
-          ),
-          body: new Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: widgets,
-          ),
-          floatingActionButton: new FloatingActionButton(
-            onPressed: (){
-              oi = !oi;
-            },
-            tooltip: 'Stop Track Location',
-            child: Icon(Icons.stop),
-          ),
+    return new Scaffold(
+      drawer: FractionallySizedBox(
+          widthFactor: 0.8,
+          child: new Drawer(
+              elevation: 2,
+              child: StreamBuilder(
+                  stream: Firestore.instance.collection('onibus').snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.data == null) {
+                      return  GoogleMap(
+                        mapType: MapType.normal,
+                        myLocationEnabled: true,
+                        initialCameraPosition: _initialCamera,
+                        onMapCreated: (GoogleMapController controller) {
+                          _controller.complete(controller);
+                        },
+                        markers: markers,
+                      );
+                    } else {
+                      if (!snapshot.hasData) {
+                        return  GoogleMap(
+                          mapType: MapType.normal,
+                          myLocationEnabled: true,
+                          initialCameraPosition: _initialCamera,
+                          onMapCreated: (GoogleMapController controller) {
+                            _controller.complete(controller);
+                          },
+                          markers: markers,
+                        );
+                      } else {
+                        return
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              FutureBuilder(
+                                  future: FirebaseAuth.instance.currentUser(),
+                                  builder: (context,
+                                      AsyncSnapshot<FirebaseUser> snapshot) {
+                                    if (snapshot.hasData) {
+                                      return Column(
+                                          children: <Widget>[
+                                      new UserAccountsDrawerHeader(
+                                      accountName: new Text(snapshot.data.
+                                          displayName,
+                                          style: TextStyle(
+                                              color: Colors.grey[50],
+                                              fontWeight: FontWeight.bold)),
+                                    accountEmail: new Text(
+                                    snapshot.data.email,
+                                    style: TextStyle(color: Colors.grey[50]),
+                                    ),
+                                    currentAccountPicture: new CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                    snapshot.data.photoUrl),
+                                    // backgroundColor: Colors.black26,
+                                    ),
+                                    decoration: new BoxDecoration(color: Colors.orange[800]),
+                                        otherAccountsPictures: <Widget>[
+                                        GestureDetector(
+                                          onTap:(){
+                                            authService.signOut();
+                                            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> MyApp()),ModalRoute.withName("/Home"));
+                                          },
+                                        child:
+                                          // Image(image: NetworkImage("https://www.materialui.co/materialIcons/action/exit_to_app_black_192x192.png"),),
+                                            Icon(Icons.exit_to_app,color: Colors.white,size: MediaQuery.of(context).size.height*0.05,),
+                                        )
 
-        );
+                                        ],
+
+                                    ),
+                                          ]);}else{
+                                    return Center(child:CircularProgressIndicator());
+                                    }
+                                  }),
+
+
+
+                              ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: snapshot.data.documents.length,
+                                  itemBuilder: (context, index) {
+                                    DocumentSnapshot mypost =
+                                    snapshot.data.documents[index];
+                                    return Column(
+                                      children: <Widget>[
+    GestureDetector(
+    onTap:(){
+    setState(() {
+      onibus=mypost['title'];
+    });
+    Navigator.of(context).pop();
+
+    },child:
+                                        Container(
+                                          /*  color:
+                            (index % 2 == 0) ? Colors.white10 : Colors.grey[50],*/
+                                            child: Text(mypost['title']))),
+                                      ],
+                                    );
+                                  }),
+
+                            ],
+                          );
+                      }
+                    }
+                  }))),
+      appBar: new AppBar(
+        title: (onibus==null)?Text('Selecione um onibus'):Text(onibus),
+      ),
+      body: (onibus!=null)?StreamBuilder(
+          stream: Firestore.instance
+              .collection('onibus')
+              .document(onibus)
+              .collection('logs')
+              .snapshots(),
+          builder: (context, snapshot) {
+            try {
+              if (snapshot.data == null) {
+                return CircularProgressIndicator();
+              } else {
+                if (!snapshot.hasData) {
+                  const Text('loading');
+                } else {
+                  DocumentSnapshot mypost;
+                  markers.clear();
+                  for (int i = 0; i < snapshot.data.documents.length; i++) {
+                    mypost = snapshot.data.documents[i];
+                    Timestamp teste = mypost['date'];
+                    DateTime cloudDate = teste.toDate();
+                    if (cloudDate.isBefore(DateTime.now())) {
+                      // print("vencido");
+                    } else {
+                      markers.add(
+                        Marker(
+                            markerId: MarkerId(mypost['user']),
+                            position: LatLng(mypost['location'].latitude,
+                                mypost['location'].longitude),
+                            infoWindow: InfoWindow(title: "teste")),
+                      );
+                    }
+                  }
+return
+                  GoogleMap(
+                    mapType: MapType.normal,
+                    myLocationEnabled: true,
+                    initialCameraPosition: _initialCamera,
+                    onMapCreated: (GoogleMapController controller) {
+                      _controller.complete(controller);
+                    },
+                    markers: markers,
+                  );
+                }
+              }
+            } catch (e) {
+              print(e);
+              return Center(child: CircularProgressIndicator());
+            }
+          }):GoogleMap(
+        mapType: MapType.normal,
+        myLocationEnabled: true,
+        initialCameraPosition: _initialCamera,
+        onMapCreated: (GoogleMapController controller) {
+          _controller.complete(controller);
+        },
+        markers: markers,
+      ),
+      floatingActionButton: new FloatingActionButton(
+        onPressed: () {
+          if(onibus != null) {
+            print("oi");
+            if (oi == true) {
+              delete();
+            } else {
+              teste();
+            }
+            oi = !oi;
+          }
+        },
+        tooltip: 'Stop Track Location',
+        child:
+        (oi == true) ? Icon(Icons.exit_to_app) : Icon(Icons.directions_bus),
+        backgroundColor: (oi == true) ? Colors.green : Colors.red,
+
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
   }
-  teste()async{
-   print("envia");
 
-    final FirebaseAuth _auth =  FirebaseAuth.instance;
+  teste() async {
+    print("envia");
+
+    final FirebaseAuth _auth = FirebaseAuth.instance;
     final Firestore _firestore = Firestore.instance;
     FirebaseUser user = await _auth.currentUser();
     print(user.uid);
     var data = {
-      "image": "https://st.depositphotos.com/3538103/5175/i/950/depositphotos_51751599-stock-photo-bus-icon.jpg",
-      "coords": GeoPoint(_currentLocation.latitude, _currentLocation.longitude)
+      "image":
+      "https://st.depositphotos.com/3538103/5175/i/950/depositphotos_51751599-stock-photo-bus-icon.jpg",
+      "coords": GeoPoint(_currentLocation.latitude, _currentLocation.longitude),
     };
 
-    _firestore.collection('onibus').document('d43').collection('logs').document(user.uid).setData({"user":user.uid,"location": GeoPoint(_currentLocation.latitude, _currentLocation.longitude)});
-   _firestore.collection('users').document(user.uid).setData({"atual":"d43"},merge:true);
-    _firestore.collection('users').document(user.uid).collection('coord').document('coord').setData(data,merge:true);
-  }
-  atualizaPosicao()async{
+    var dataBus = {
+      "user": user.uid,
+      "location":
+      GeoPoint(_currentLocation.latitude, _currentLocation.longitude),
+      "date": Timestamp.fromDate(DateTime.now().add(Duration(hours: 1))),
+      "report": 0
+    };
 
+    _firestore
+        .collection('onibus')
+        .document(onibus)
+        .collection('logs')
+        .document(user.uid)
+        .setData(dataBus);
+    _firestore
+        .collection('users')
+        .document(user.uid)
+        .setData({"atual": onibus}, merge: true);
+    _firestore
+        .collection('users')
+        .document(user.uid)
+        .collection('coord')
+        .document('coord')
+        .setData(data, merge: true);
   }
 
-  Widget loadMap(){
+  delete() async {
+    print("envia");
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final Firestore _firestore = Firestore.instance;
+    FirebaseUser user = await _auth.currentUser();
+    print(user.uid);
+    _firestore
+        .collection('onibus')
+        .document(onibus)
+        .collection('logs')
+        .document(user.uid).delete();
+  }
+
+  expira() async {
+    print("envia");
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final Firestore _firestore = Firestore.instance;
+    FirebaseUser user = await _auth.currentUser();
+    print(user.uid);
+    _firestore
+        .collection('onibus')
+        .document(onibus)
+        .collection('logs')
+        .document(user.uid).get().then((valor){
+
+        });
+  }
+
+
+
+  atualizaPosicao() async {
+    print("envia");
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final Firestore _firestore = Firestore.instance;
+    FirebaseUser user = await _auth.currentUser();
+    print(user.uid);
+    var data = {
+      "image":
+      "https://st.depositphotos.com/3538103/5175/i/950/depositphotos_51751599-stock-photo-bus-icon.jpg",
+      "coords": GeoPoint(_currentLocation.latitude, _currentLocation.longitude),
+    };
+
+    var dataBus = {
+      "user": user.uid,
+      "location":
+      GeoPoint(_currentLocation.latitude, _currentLocation.longitude),
+    };
+
+    _firestore
+        .collection('onibus')
+        .document(onibus)
+        .collection('logs')
+        .document(user.uid).get().then((valor){
+          print(valor['date']);
+    });
+
+    _firestore
+        .collection('onibus')
+        .document(onibus)
+        .collection('logs')
+        .document(user.uid)
+        .updateData(dataBus);
+    _firestore
+        .collection('users')
+        .document(user.uid)
+        .setData({"atual": onibus}, merge: true);
+    _firestore
+        .collection('users')
+        .document(user.uid)
+        .collection('coord')
+        .document('coord')
+        .setData(data, merge: true);
+  }
+
+  Widget loadMap() {
     return StreamBuilder(
-      stream: Firestore.instance.collection('markers').snapshots(),
-      builder: (context,snapshot){
-        if(!snapshot.hasData)return Text('Load');
-        for(int i =0;i<snapshot.data.documents.lenght;i++){
-
-        }
-      }
-    );
+        stream: Firestore.instance.collection('markers').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return Text('Load');
+          for (int i = 0; i < snapshot.data.documents.lenght; i++) {}
+        });
   }
 }

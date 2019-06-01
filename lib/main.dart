@@ -6,11 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:involucrata/Escolha.dart';
 import 'package:involucrata/Escolha2.dart';
 import 'package:involucrata/Escolha3.dart';
-import 'package:involucrata/TESTE.dart';
-import 'package:android_alarm_manager/android_alarm_manager.dart';
-import 'dart:async';
 
-import 'package:android_alarm_manager/android_alarm_manager.dart';
+import 'dart:async';
 import 'package:flutter/widgets.dart';
 
 void printMessage(String msg) => print('[${DateTime.now()}] $msg');
@@ -19,24 +16,17 @@ void printPeriodic() => printMessage("Periodic!");
 void printOneShot() => printMessage("One shot!");
 
 
-Future<void> main() async {
+void main() {
 
-  final int periodicID = 0;
-  final int oneShotID = 1;
 
-  await AndroidAlarmManager.initialize();
+
+
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
   // SystemChrome.setEnabledSystemUIOverlays([]); tirar status bar
   runApp(MyApp());
-
-  await AndroidAlarmManager.periodic(
-      const Duration(seconds: 5), periodicID, printPeriodic,
-      wakeup: true);
-  await AndroidAlarmManager.oneShot(
-      const Duration(seconds: 5), oneShotID, printOneShot);
 }
 
 class MyApp extends StatelessWidget {

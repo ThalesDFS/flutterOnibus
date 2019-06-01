@@ -16,7 +16,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 import 'dart:io';
 import 'main.dart';
-import 'package:flushbar/flushbar.dart';
+
 //import 'package:bar2/atualizaBar.dart';
 
 //import 'config.dart'

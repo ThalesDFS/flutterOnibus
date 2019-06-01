@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-
+import 'package:geodesy/geodesy.dart' as geo;
 
 class MapScreen extends StatefulWidget {
 
@@ -83,6 +83,9 @@ class _MapScreenState extends State<MapScreen> {
     /*List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(googleAPiKey,
         _originLatitude, _originLongitude, _destLatitude, _destLongitude);*/
     List<PointLatLng> result = polylinePoints.decodePolyline("zlbvDhnnwHhF{_@hB_L");
+
+    //bool isGeoPointInPolygon = geo.Geodesy().isGeoPointInPolygon(geo.LatLng(-3, -2), );
+    print("teste"+result.toString());
     if(result.isNotEmpty){
       result.forEach((PointLatLng point){
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));

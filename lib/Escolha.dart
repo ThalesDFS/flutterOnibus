@@ -16,6 +16,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 import 'dart:io';
 import 'main.dart';
+import 'package:flushbar/flushbar.dart';
 //import 'package:bar2/atualizaBar.dart';
 
 //import 'config.dart'
@@ -26,11 +27,15 @@ class MyApp2 extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp2> {
+  bool futuro= false;
+  bool _autovalidate = false;
+  GlobalKey<FormState> _key = new GlobalKey();
   LocationData _startLocation;
   LocationData _currentLocation;
   String onibus = null;
+  String onibusCompartilha;
   StreamSubscription<LocationData> _locationSubscription;
-
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   Location _locationService = new Location();
   bool _permission = false;
   String error;
@@ -77,7 +82,7 @@ class _MyAppState extends State<MyApp2> {
                 target: LatLng(result.latitude, result.longitude), zoom: 16);
 
             final GoogleMapController controller = await _controller.future;
-           /* controller.animateCamera(
+            /* controller.animateCamera(
                 CameraUpdate.newCameraPosition(_currentCameraPosition));*/
             if (mounted) {
               setState(() {
@@ -114,18 +119,119 @@ class _MyAppState extends State<MyApp2> {
         accuracy: LocationAccuracy.BALANCED, interval: 10000);
     _locationSubscription =
         _locationService.onLocationChanged().listen((LocationData result) {
-          if (mounted) {
-            setState(() {
-              _currentLocation = result;
-            });
-            teste();
-          }
+      if (mounted) {
+        setState(() {
+          _currentLocation = result;
         });
+        teste();
+      }
+    });
   }
 
   bool oi = false;
   bool delay = false;
   Set<Marker> markers = Set();
+  String descricao;
+
+  void showInSnackBar3(String value) {
+    _scaffoldKey.currentState.showSnackBar(
+      SnackBar(
+        content: Text(value),
+        action: SnackBarAction(
+            label: "Parar Compartilhamento para ${onibus}", onPressed: () {}),
+      ),
+    );
+  }
+
+  void _showDialog(context) {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+            child: AlertDialog(
+          title: new Text("Adicione uma descrição"),
+          content: Form(
+            key: _key,
+            autovalidate: _autovalidate,
+            child: Column(
+              children: <Widget>[
+                TextFormField(
+                  //validator: validateName,
+                  decoration:
+                      InputDecoration(hintText: 'Descrição...sentido...'),
+                  maxLength: 12,
+                  onSaved: (val) {
+                    descricao = val;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Cancelar"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            new FlatButton(
+              child: new Text("Aceitar"),
+              onPressed: () {
+                if (_key.currentState.validate()) {
+                  if (onibus != null) {
+                    print("oi");
+                    teste();
+                    oi = !oi;
+                  }
+                  Navigator.of(context).pop();
+                } else {
+                  setState(() {
+                    _autovalidate = true;
+                  });
+                }
+              },
+            ),
+          ],
+        ));
+      },
+    );
+  }
+
+  void _showDialog2(contexto, String novalinha) {
+    print("aqui2");
+    // flutter defined function
+    showDialog(
+      context: contexto,
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+            child: AlertDialog(
+          title: new Text("Trocar de linha?"),
+          content: Text(
+              "Você esta compartilhando sua localização em ${onibus}, deseja trocar de linha?"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Cancelar"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            new FlatButton(
+                child: new Text("Sim"),
+                onPressed: () {
+                  setState(() {
+                    oi = false;
+                    onibus = novalinha;
+                  });
+                  Navigator.of(context).pop();
+                }),
+          ],
+        ));
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,6 +245,7 @@ class _MyAppState extends State<MyApp2> {
         });
       }
     }
+
     googleMap = GoogleMap(
       mapType: MapType.normal,
       myLocationEnabled: true,
@@ -150,13 +257,11 @@ class _MyAppState extends State<MyApp2> {
     );
 
     widgets = [
-
-        //child: SizedBox(height: 300.0, child: googleMap),
-         googleMap
-
+      //child: SizedBox(height: 300.0, child: googleMap),
+      googleMap
     ];
 
-   /* widgets.add(new Center(
+    /* widgets.add(new Center(
         child: new Text(_startLocation != null
             ? 'Localização inicial: ${_startLocation
             .latitude} & ${_startLocation.longitude}\n'
@@ -192,7 +297,7 @@ class _MyAppState extends State<MyApp2> {
                   stream: Firestore.instance.collection('onibus').snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.data == null) {
-                      return  GoogleMap(
+                      return GoogleMap(
                         mapType: MapType.normal,
                         myLocationEnabled: true,
                         initialCameraPosition: _initialCamera,
@@ -203,7 +308,7 @@ class _MyAppState extends State<MyApp2> {
                       );
                     } else {
                       if (!snapshot.hasData) {
-                        return  GoogleMap(
+                        return GoogleMap(
                           mapType: MapType.normal,
                           myLocationEnabled: true,
                           initialCameraPosition: _initialCamera,
@@ -213,166 +318,176 @@ class _MyAppState extends State<MyApp2> {
                           markers: markers,
                         );
                       } else {
-                        return
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              FutureBuilder(
-                                  future: FirebaseAuth.instance.currentUser(),
-                                  builder: (context,
-                                      AsyncSnapshot<FirebaseUser> snapshot) {
-                                    if (snapshot.hasData) {
-                                      return Column(
-                                          children: <Widget>[
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            FutureBuilder(
+                                future:  FirebaseAuth.instance.currentUser(),
+                                builder: (context,
+                                    AsyncSnapshot<FirebaseUser> snapshot) {
+                                    return Column(children: <Widget>[
                                       new UserAccountsDrawerHeader(
-                                      accountName: new Text(snapshot.data.
-                                          displayName,
-                                          style: TextStyle(
-                                              color: Colors.grey[50],
-                                              fontWeight: FontWeight.bold)),
-                                    accountEmail: new Text(
-                                    snapshot.data.email,
-                                    style: TextStyle(color: Colors.grey[50]),
-                                    ),
-                                    currentAccountPicture: new CircleAvatar(
-                                    backgroundImage: NetworkImage(
-                                    snapshot.data.photoUrl),
-                                    // backgroundColor: Colors.black26,
-                                    ),
-                                    decoration: new BoxDecoration(color: Colors.orange[800]),
+                                        accountName: new Text(
+                                            snapshot.data.displayName,
+                                            style: TextStyle(
+                                                color: Colors.grey[50],
+                                                fontWeight: FontWeight.bold)),
+                                        accountEmail: new Text(
+                                          snapshot.data.email,
+                                          style:
+                                              TextStyle(color: Colors.grey[50]),
+                                        ),
+                                        currentAccountPicture: new CircleAvatar(
+                                          backgroundImage: NetworkImage(
+                                              snapshot.data.photoUrl),
+                                          // backgroundColor: Colors.black26,
+                                        ),
+                                        decoration: new BoxDecoration(
+                                            color: Colors.orange[800]),
                                         otherAccountsPictures: <Widget>[
-                                        GestureDetector(
-                                          onTap:(){
-                                            authService.signOut();
-                                            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=> MyApp()),ModalRoute.withName("/Home"));
-                                          },
-                                        child:
-                                          // Image(image: NetworkImage("https://www.materialui.co/materialIcons/action/exit_to_app_black_192x192.png"),),
-                                            Icon(Icons.exit_to_app,color: Colors.white,size: MediaQuery.of(context).size.height*0.05,),
-                                        )
-
+                                          GestureDetector(
+                                            onTap: () {
+                                              authService.signOut();
+                                              Navigator.pushAndRemoveUntil(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          MyApp()),
+                                                  ModalRoute.withName("/Home"));
+                                            },
+                                            child:
+                                                // Image(image: NetworkImage("https://www.materialui.co/materialIcons/action/exit_to_app_black_192x192.png"),),
+                                                Icon(
+                                              Icons.exit_to_app,
+                                              color: Colors.white,
+                                              size: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.05,
+                                            ),
+                                          )
                                         ],
+                                      ),
+                                    ]);
+                                }),
+                            ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: snapshot.data.documents.length,
+                                itemBuilder: (context, index) {
+                                  DocumentSnapshot mypost =
+                                      snapshot.data.documents[index];
+                                  return Column(
+                                    children: <Widget>[
+                                      GestureDetector(
+                                          onTap: () {
+                                            //  if((oi == true)&&(onibus != mypost['title'])){
 
-                                    ),
-                                          ]);}else{
-                                    return Center(child:CircularProgressIndicator());
-                                    }
-                                  }),
+                                            setState(() {
+                                              onibus = mypost['title'];
+                                            });
 
-
-
-                              ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: snapshot.data.documents.length,
-                                  itemBuilder: (context, index) {
-                                    DocumentSnapshot mypost =
-                                    snapshot.data.documents[index];
-                                    return Column(
-                                      children: <Widget>[
-    GestureDetector(
-    onTap:(){
-    setState(() {
-      onibus=mypost['title'];
-    });
-    Navigator.of(context).pop();
-
-    },child:
-                                        Container(
-                                          /*  color:
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Container(
+                                              /*  color:
                             (index % 2 == 0) ? Colors.white10 : Colors.grey[50],*/
-                                            child: Text(mypost['title']))),
-                                      ],
-                                    );
-                                  }),
-
-                            ],
-                          );
+                                              child: Text(mypost['title']))),
+                                    ],
+                                  );
+                                }),
+                          ],
+                        );
                       }
                     }
                   }))),
       appBar: new AppBar(
-        title: (onibus==null)?Text('Selecione um onibus'):Text(onibus),
+        title: (onibus == null) ? Text('Selecione um onibus') : Text(onibus),
       ),
-      body: (onibus!=null)?StreamBuilder(
-          stream: Firestore.instance
-              .collection('onibus')
-              .document(onibus)
-              .collection('logs')
-              .snapshots(),
-          builder: (context, snapshot) {
-            try {
-              if (snapshot.data == null) {
-                return CircularProgressIndicator();
-              } else {
-                if (!snapshot.hasData) {
-                  const Text('loading');
-                } else {
-                  DocumentSnapshot mypost;
-                  markers.clear();
-                  for (int i = 0; i < snapshot.data.documents.length; i++) {
-                    mypost = snapshot.data.documents[i];
-                    Timestamp teste = mypost['date'];
-                    DateTime cloudDate = teste.toDate();
-                    if (cloudDate.isBefore(DateTime.now())) {
-                      // print("vencido");
+      body: (onibus != null)
+          ? StreamBuilder(
+              stream: Firestore.instance
+                  .collection('onibus')
+                  .document(onibus)
+                  .collection('logs')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                try {
+                  if (snapshot.data == null) {
+                    return CircularProgressIndicator();
+                  } else {
+                    if (!snapshot.hasData) {
+                      const Text('loading');
                     } else {
-                      markers.add(
-                        Marker(
-                            markerId: MarkerId(mypost['user']),
-                            position: LatLng(mypost['location'].latitude,
-                                mypost['location'].longitude),
-                            infoWindow: InfoWindow(title: "teste")),
+                      DocumentSnapshot mypost;
+                      markers.clear();
+                      for (int i = 0; i < snapshot.data.documents.length; i++) {
+                        mypost = snapshot.data.documents[i];
+                        Timestamp teste = mypost['date'];
+                        DateTime cloudDate = teste.toDate();
+                        if (cloudDate.isBefore(DateTime.now())) {
+                          // print("vencido");
+                        } else {
+                          markers.add(
+                            Marker(
+                                markerId: MarkerId(mypost['user']),
+                                position: LatLng(mypost['location'].latitude,
+                                    mypost['location'].longitude),
+                                infoWindow: InfoWindow(title: "teste")),
+                          );
+                        }
+                      }
+                      return GoogleMap(
+                        mapType: MapType.normal,
+                        myLocationEnabled: true,
+                        initialCameraPosition: _initialCamera,
+                        onMapCreated: (GoogleMapController controller) {
+                          _controller.complete(controller);
+                        },
+                        markers: markers,
                       );
                     }
                   }
-return
-                  GoogleMap(
-                    mapType: MapType.normal,
-                    myLocationEnabled: true,
-                    initialCameraPosition: _initialCamera,
-                    onMapCreated: (GoogleMapController controller) {
-                      _controller.complete(controller);
-                    },
-                    markers: markers,
-                  );
+                } catch (e) {
+                  print(e);
+                  return Center(child: CircularProgressIndicator());
                 }
-              }
-            } catch (e) {
-              print(e);
-              return Center(child: CircularProgressIndicator());
-            }
-          }):GoogleMap(
-        mapType: MapType.normal,
-        myLocationEnabled: true,
-        initialCameraPosition: _initialCamera,
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
-        },
-        markers: markers,
-      ),
+              })
+          : GoogleMap(
+              mapType: MapType.normal,
+              myLocationEnabled: true,
+              initialCameraPosition: _initialCamera,
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
+              markers: markers,
+            ),
       floatingActionButton: new FloatingActionButton(
         onPressed: () {
-          if(onibus != null) {
+          if (onibus != null) {
             print("oi");
             if (oi == true) {
               delete();
+              oi = !oi;
             } else {
-              teste();
+              _showDialog(context);
             }
-            oi = !oi;
           }
         },
         tooltip: 'Stop Track Location',
-        child:
-        (oi == true) ? Icon(Icons.exit_to_app) : Icon(Icons.directions_bus),
+        child: (oi == true)
+            ? Text(
+                onibusCompartilha,
+                style: TextStyle(color: Colors.white),
+              )
+            : Icon(Icons.directions_bus),
         backgroundColor: (oi == true) ? Colors.green : Colors.red,
-
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
   teste() async {
+    onibusCompartilha = onibus;
     print("envia");
 
     final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -381,28 +496,41 @@ return
     print(user.uid);
     var data = {
       "image":
-      "https://st.depositphotos.com/3538103/5175/i/950/depositphotos_51751599-stock-photo-bus-icon.jpg",
+          "https://st.depositphotos.com/3538103/5175/i/950/depositphotos_51751599-stock-photo-bus-icon.jpg",
       "coords": GeoPoint(_currentLocation.latitude, _currentLocation.longitude),
     };
 
     var dataBus = {
       "user": user.uid,
       "location":
-      GeoPoint(_currentLocation.latitude, _currentLocation.longitude),
+          GeoPoint(_currentLocation.latitude, _currentLocation.longitude),
       "date": Timestamp.fromDate(DateTime.now().add(Duration(hours: 1))),
       "report": 0
     };
 
     _firestore
         .collection('onibus')
-        .document(onibus)
+        .document(onibusCompartilha)
         .collection('logs')
         .document(user.uid)
         .setData(dataBus);
     _firestore
         .collection('users')
         .document(user.uid)
-        .setData({"atual": onibus}, merge: true);
+        .setData({"atual": onibusCompartilha
+
+
+
+
+
+
+
+
+
+
+
+
+    }, merge: true);
     _firestore
         .collection('users')
         .document(user.uid)
@@ -421,7 +549,8 @@ return
         .collection('onibus')
         .document(onibus)
         .collection('logs')
-        .document(user.uid).delete();
+        .document(user.uid)
+        .delete();
   }
 
   expira() async {
@@ -434,12 +563,10 @@ return
         .collection('onibus')
         .document(onibus)
         .collection('logs')
-        .document(user.uid).get().then((valor){
-
-        });
+        .document(user.uid)
+        .get()
+        .then((valor) {});
   }
-
-
 
   atualizaPosicao() async {
     print("envia");
@@ -449,34 +576,36 @@ return
     print(user.uid);
     var data = {
       "image":
-      "https://st.depositphotos.com/3538103/5175/i/950/depositphotos_51751599-stock-photo-bus-icon.jpg",
+          "https://st.depositphotos.com/3538103/5175/i/950/depositphotos_51751599-stock-photo-bus-icon.jpg",
       "coords": GeoPoint(_currentLocation.latitude, _currentLocation.longitude),
     };
 
     var dataBus = {
       "user": user.uid,
       "location":
-      GeoPoint(_currentLocation.latitude, _currentLocation.longitude),
+          GeoPoint(_currentLocation.latitude, _currentLocation.longitude),
     };
 
     _firestore
         .collection('onibus')
-        .document(onibus)
+        .document(onibusCompartilha)
         .collection('logs')
-        .document(user.uid).get().then((valor){
-          print(valor['date']);
+        .document(user.uid)
+        .get()
+        .then((valor) {
+      print(valor['date']);
     });
 
     _firestore
         .collection('onibus')
-        .document(onibus)
+        .document(onibusCompartilha)
         .collection('logs')
         .document(user.uid)
         .updateData(dataBus);
     _firestore
         .collection('users')
         .document(user.uid)
-        .setData({"atual": onibus}, merge: true);
+        .setData({"atual": onibusCompartilha}, merge: true);
     _firestore
         .collection('users')
         .document(user.uid)

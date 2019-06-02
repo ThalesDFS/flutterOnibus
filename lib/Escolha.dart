@@ -16,7 +16,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 import 'dart:io';
 import 'main.dart';
-
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 //import 'package:bar2/atualizaBar.dart';
 
 //import 'config.dart'
@@ -27,6 +27,12 @@ class MyApp2 extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp2> {
+  double _originLatitude = 6.5212402, _originLongitude = 3.3679965;
+  double _destLatitude = 6.849660, _destLongitude = 3.648190;
+  Map<PolylineId, Polyline> polylines = {};
+  List<LatLng> polylineCoordinates = [];
+
+  PolylinePoints polylinePoints = PolylinePoints();
   bool futuro= false;
   bool _autovalidate = false;
   GlobalKey<FormState> _key = new GlobalKey();
@@ -325,6 +331,7 @@ class _MyAppState extends State<MyApp2> {
                                 future:  FirebaseAuth.instance.currentUser(),
                                 builder: (context,
                                     AsyncSnapshot<FirebaseUser> snapshot) {
+                                  if(snapshot.hasData){
                                     return Column(children: <Widget>[
                                       new UserAccountsDrawerHeader(
                                         accountName: new Text(
@@ -343,7 +350,7 @@ class _MyAppState extends State<MyApp2> {
                                           // backgroundColor: Colors.black26,
                                         ),
                                         decoration: new BoxDecoration(
-                                            color: Colors.orange[800]),
+                                            color: Colors.deepPurple),
                                         otherAccountsPictures: <Widget>[
                                           GestureDetector(
                                             onTap: () {
@@ -368,15 +375,20 @@ class _MyAppState extends State<MyApp2> {
                                           )
                                         ],
                                       ),
-                                    ]);
+                                    ]);}else{
+                                    return CircularProgressIndicator();
+                                  };
                                 }),
+                            Center(child: Text("Linhas de onibus",style: TextStyle(color: Colors.deepPurple,fontWeight: FontWeight.bold,fontSize: 20))),
                             ListView.builder(
                                 shrinkWrap: true,
                                 itemCount: snapshot.data.documents.length,
                                 itemBuilder: (context, index) {
                                   DocumentSnapshot mypost =
                                       snapshot.data.documents[index];
-                                  return Column(
+                                  return
+                                 /* return Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     children: <Widget>[
                                       GestureDetector(
                                           onTap: () {
@@ -388,12 +400,40 @@ class _MyAppState extends State<MyApp2> {
 
                                             Navigator.of(context).pop();
                                           },
-                                          child: Container(
+                                          child:
+                                          Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height*0.03),child:
+                                          Container(
+
                                               /*  color:
                             (index % 2 == 0) ? Colors.white10 : Colors.grey[50],*/
-                                              child: Text(mypost['title']))),
+                                              child: Text(mypost['title'],style: TextStyle(color: Colors.black,fontSize: 20),),
+                                          ))),
                                     ],
-                                  );
+                                  );*/
+                                  Column(children: <Widget>[
+                                    Container(
+                                        //margin: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.04,bottom: MediaQuery.of(context).size.height*0.03),
+                                          color:
+                            (index % 2 == 0) ? Colors.deepPurple[100] : Colors.grey[50],
+                                        child:
+                                        ListTile(
+                                          leading: CircleAvatar(
+                                            backgroundImage:
+                                            NetworkImage(mypost['image']),
+                                            backgroundColor: Colors.transparent,
+                                          ),
+                                          title: Text(
+                                            mypost['title'].toString(),
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          subtitle: Text(mypost['subtitle']),
+                                          onTap: () {
+
+                                          },
+                                        ))       ],);
                                 }),
                           ],
                         );
@@ -420,6 +460,7 @@ class _MyAppState extends State<MyApp2> {
                     } else {
                       DocumentSnapshot mypost;
                       markers.clear();
+
                       for (int i = 0; i < snapshot.data.documents.length; i++) {
                         mypost = snapshot.data.documents[i];
                         Timestamp teste = mypost['date'];
@@ -436,6 +477,8 @@ class _MyAppState extends State<MyApp2> {
                           );
                         }
                       }
+
+                      poly();
                       return GoogleMap(
                         mapType: MapType.normal,
                         myLocationEnabled: true,
@@ -444,6 +487,7 @@ class _MyAppState extends State<MyApp2> {
                           _controller.complete(controller);
                         },
                         markers: markers,
+                        polylines: Set<Polyline>.of(polylines.values),
                       );
                     }
                   }
@@ -621,5 +665,37 @@ class _MyAppState extends State<MyApp2> {
           if (!snapshot.hasData) return Text('Load');
           for (int i = 0; i < snapshot.data.documents.lenght; i++) {}
         });
+  }
+  _getPolyline(var poli)async
+  {
+    /*List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(googleAPiKey,
+        _originLatitude, _originLongitude, _destLatitude, _destLongitude);*/
+    List<PointLatLng> result = polylinePoints.decodePolyline(poli);
+
+    //bool isGeoPointInPolygon = geo.Geodesy().isGeoPointInPolygon(geo.LatLng(-3, -2), );
+    print("teste"+result.toString());
+    if(result.isNotEmpty){
+      result.forEach((PointLatLng point){
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
+    }
+    _addPolyLine();
+  }
+  _addPolyLine()
+  {
+    PolylineId id = PolylineId("poly");
+    Polyline polyline = Polyline(
+        polylineId: id,
+        color: Colors.red, points: polylineCoordinates
+    );
+    polylines[id] = polyline;
+    setState(() {
+    });
+  }
+  Future poly() async {
+    String result = await Firestore.instance.collection('onibus').document(onibus).collection('polylines').document('poly').get().then((string) {
+      return string['poly'].toString();
+    });
+    _getPolyline(result);
   }
 }

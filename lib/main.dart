@@ -71,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Container(
-            color: Colors.orange,
+            color: Colors.deepPurpleAccent,
             child: Center(
                 child: Column(
               children: <Widget>[

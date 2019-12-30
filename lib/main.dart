@@ -6,10 +6,14 @@ import 'package:flutter/services.dart';
 import 'package:involucrata/Escolha.dart';
 import 'package:involucrata/Escolha2.dart';
 import 'package:involucrata/Escolha3.dart';
-
+import 'package:involucrata/Arvores.dart';
+import 'MenuPrincipal.dart';
+import 'cord.dart';
+import 'package:involucrata/cord.dart';
+import 'cord2.dart';
 import 'dart:async';
 import 'package:flutter/widgets.dart';
-
+import 'package:load/load.dart';
 void printMessage(String msg) => print('[${DateTime.now()}] $msg');
 
 void printPeriodic() => printMessage("Periodic!");
@@ -26,7 +30,11 @@ void main() {
     DeviceOrientation.portraitDown,
   ]);
   // SystemChrome.setEnabledSystemUIOverlays([]); tirar status bar
-  runApp(MyApp());
+
+     runApp(
+          LoadingProvider(
+      child:
+         MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -48,7 +56,7 @@ class MyApp extends StatelessWidget {
               future: FirebaseAuth.instance.currentUser(),
               builder: (context, AsyncSnapshot<FirebaseUser> snapshot) {
                 if (snapshot.hasData) {
-                  return MyApp2();
+                  return MenuPrincipal();
                 } else {
                   return LoginScreen();
                 }
@@ -75,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Center(
                 child: Column(
               children: <Widget>[
-                Expanded(child: Text("Asset Icone")),
+                Expanded(child: Image.asset('assets/splash_icon.png')),
                 Text(
                   "Login",
                   style: TextStyle(

@@ -130,13 +130,13 @@ class _MyAppState extends State<MyApp2> {
         accuracy: LocationAccuracy.BALANCED, interval: 10000);
     _locationSubscription =
         _locationService.onLocationChanged().listen((LocationData result) {
-      if (mounted) {
-        setState(() {
-          _currentLocation = result;
+          if (mounted) {
+            setState(() {
+              _currentLocation = result;
+            });
+            teste();
+          }
         });
-        teste();
-      }
-    });
   }
 
   bool oi = false;
@@ -161,56 +161,56 @@ class _MyAppState extends State<MyApp2> {
       builder: (BuildContext context) {
         return SingleChildScrollView(
             child: AlertDialog(
-          title: new Text("Adicione uma descrição"),
-          content: Form(
-            key: _key,
-            autovalidate: _autovalidate,
-            child: Column(
-              children: <Widget>[
-                TextField(
-                  controller: emailController,
-                  textAlign: TextAlign.left,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: 'Descricao...sentido',
-                    hintStyle: TextStyle(color: Colors.grey),
-                  ),
-                )
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            new FlatButton(
-              child: new Text("Cancelar"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            new FlatButton(
-              child: new Text("Aceitar"),
-              onPressed: () {
+              title: new Text("Adicione uma descrição"),
+              content: Form(
+                key: _key,
+                autovalidate: _autovalidate,
+                child: Column(
+                  children: <Widget>[
+                    TextField(
+                      controller: emailController,
+                      textAlign: TextAlign.left,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Descricao...sentido',
+                        hintStyle: TextStyle(color: Colors.grey),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                // usually buttons at the bottom of the dialog
+                new FlatButton(
+                  child: new Text("Cancelar"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                new FlatButton(
+                  child: new Text("Aceitar"),
+                  onPressed: () {
 
-                if (_key.currentState.validate()) {
-                  if (onibus != null) {
-                    print(emailController.text);
-                    teste();
-                    oi = !oi;
-                  }
-                  Navigator.of(context).pop();
-                } else {
-                  setState(() {
-                    _autovalidate = true;
-                  });
-                }
-              },
-            ),
-          ],
-        ));
+                    if (_key.currentState.validate()) {
+                      if (onibus != null) {
+                        print(emailController.text);
+                        teste();
+                        oi = !oi;
+                      }
+                      Navigator.of(context).pop();
+                    } else {
+                      setState(() {
+                        _autovalidate = true;
+                      });
+                    }
+                  },
+                ),
+              ],
+            ));
       },
     );
   }
-  final WebSocketChannel channel = IOWebSocketChannel.connect('wss://merciful-thrill.glitch.me');
+ // final WebSocketChannel channel = IOWebSocketChannel.connect('wss://merciful-thrill.glitch.me');
   void _showDialog2(contexto, String novalinha) {
     print("aqui2");
     // flutter defined function
@@ -219,28 +219,28 @@ class _MyAppState extends State<MyApp2> {
       builder: (BuildContext context) {
         return SingleChildScrollView(
             child: AlertDialog(
-          title: new Text("Trocar de linha?"),
-          content: Text(
-              "Você esta compartilhando sua localização em ${onibus}, deseja trocar de linha?"),
-          actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            new FlatButton(
-              child: new Text("Cancelar"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            new FlatButton(
-                child: new Text("Sim"),
-                onPressed: () {
-                  setState(() {
-                    oi = false;
-                    onibus = novalinha;
-                  });
-                  Navigator.of(context).pop();
-                }),
-          ],
-        ));
+              title: new Text("Trocar de linha?"),
+              content: Text(
+                  "Você esta compartilhando sua localização em ${onibus}, deseja trocar de linha?"),
+              actions: <Widget>[
+                // usually buttons at the bottom of the dialog
+                new FlatButton(
+                  child: new Text("Cancelar"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                new FlatButton(
+                    child: new Text("Sim"),
+                    onPressed: () {
+                      setState(() {
+                        oi = false;
+                        onibus = novalinha;
+                      });
+                      Navigator.of(context).pop();
+                    }),
+              ],
+            ));
       },
     );
   }
@@ -359,7 +359,7 @@ class _MyAppState extends State<MyApp2> {
                                         accountEmail: new Text(
                                           snapshot.data.email,
                                           style:
-                                              TextStyle(color: Colors.grey[50]),
+                                          TextStyle(color: Colors.grey[50]),
                                         ),
                                         currentAccountPicture: new CircleAvatar(
                                           backgroundImage: NetworkImage(
@@ -380,13 +380,13 @@ class _MyAppState extends State<MyApp2> {
                                                   ModalRoute.withName("/Home"));
                                             },
                                             child:
-                                                // Image(image: NetworkImage("https://www.materialui.co/materialIcons/action/exit_to_app_black_192x192.png"),),
-                                                Icon(
+                                            // Image(image: NetworkImage("https://www.materialui.co/materialIcons/action/exit_to_app_black_192x192.png"),),
+                                            Icon(
                                               Icons.exit_to_app,
                                               color: Colors.white,
                                               size: MediaQuery.of(context)
-                                                      .size
-                                                      .height *
+                                                  .size
+                                                  .height *
                                                   0.05,
                                             ),
                                           )
@@ -404,7 +404,7 @@ class _MyAppState extends State<MyApp2> {
                                   DocumentSnapshot mypost = snapshot.data.documents[index];
                                   pegaNumero(mypost['title']);
                                   return
-                                 /* return Column(
+                                    /* return Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: <Widget>[
                                       GestureDetector(
@@ -427,39 +427,39 @@ class _MyAppState extends State<MyApp2> {
                                           ))),
                                     ],
                                   );*/
-                                  Column(children: <Widget>[
-                                    Container(
+                                    Column(children: <Widget>[
+                                      Container(
                                         //margin: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.04,bottom: MediaQuery.of(context).size.height*0.03),
                                           color:
-                            (index % 2 == 0) ? Colors.deepPurple[100] : Colors.grey[50],
-                                        child:
-                                        ListTile(
-                                          leading: CircleAvatar(
-                                            backgroundImage:
-                                            NetworkImage(mypost['image']),
-                                            backgroundColor: Colors.transparent,
-                                          ),
-                                          title: Text(
-                                            mypost['title'].toString(),
-                                            style: TextStyle(
-                                                fontSize: 20,
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          subtitle: Text(mypost['subtitle']),
-                                          onTap: () {
+                                          (index % 2 == 0) ? Colors.deepPurple[100] : Colors.grey[50],
+                                          child:
+                                          ListTile(
+                                            leading: CircleAvatar(
+                                              backgroundImage:
+                                              NetworkImage(mypost['image']),
+                                              backgroundColor: Colors.transparent,
+                                            ),
+                                            title: Text(
+                                              mypost['title'].toString(),
+                                              style: TextStyle(
+                                                  fontSize: 20,
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            subtitle: Text(mypost['subtitle']),
+                                            onTap: () {
 
-                                            setState(() {
+                                              setState(() {
 
-                                              polylineCoordinates.clear();
-                                              onibus = mypost['title'];
-                                              poly();
-                                              Navigator.of(context).pop();
+                                                polylineCoordinates.clear();
+                                                onibus = mypost['title'];
+                                                poly();
+                                                Navigator.of(context).pop();
 
-                                            });
+                                              });
 
-                                          },
-                                        ))       ],);
+                                            },
+                                          ))       ],);
                                 }),
                           ],
                         );
@@ -469,66 +469,61 @@ class _MyAppState extends State<MyApp2> {
       appBar: new AppBar(
         title: (onibus == null) ? Text('Selecione um onibus') : Text(onibus),
       ),
-      body: (onibus != null)
+      body: (true)
           ? StreamBuilder(
-              stream: Firestore.instance
-                  .collection('onibus')
-                  .document(onibus)
-                  .collection('logs')
-                  .snapshots(),
-              builder: (context, snapshot) {
-                try {
-                  if (snapshot.data == null) {
-                    return CircularProgressIndicator();
-                  } else {
-                    if (!snapshot.hasData) {
-                      const Text('loading');
-                    } else {
-                      DocumentSnapshot mypost;
-                      markers.clear();
+          stream: Firestore.instance
+              .collection('Aguardando')
+              .snapshots(),
+          builder: (context, snapshot) {
+            try {
+              if (snapshot.data == null) {
+                return CircularProgressIndicator();
+              } else {
+                if (!snapshot.hasData) {
+                  const Text('loading');
+                } else {
+                  DocumentSnapshot mypost;
+                  markers.clear();
 
-                      for (int i = 0; i < snapshot.data.documents.length; i++) {
-                        mypost = snapshot.data.documents[i];
-                        Timestamp teste = mypost['date'];
-                        DateTime cloudDate = teste.toDate();
-                        if (cloudDate.isBefore(DateTime.now())) {
-                          // print("vencido");
-                        } else {
-                          markers.add(
-                            Marker(
-                                markerId: MarkerId(mypost['user']),
-                                position: LatLng(mypost['location'].latitude,
-                                    mypost['location'].longitude),
-                                infoWindow: InfoWindow(title: mypost['descricao'])),
-                          );
-                        }
-                      }
-                      return GoogleMap(
-                        mapType: MapType.normal,
-                        myLocationEnabled: true,
-                        initialCameraPosition: _initialCamera,
-                        onMapCreated: (GoogleMapController controller) {
-                          _controller.complete(controller);
-                        },
-                        markers: markers,
-                        polylines: Set<Polyline>.of(polylines.values),
+                  for (int i = 0; i < snapshot.data.documents.length; i++) {
+                    mypost = snapshot.data.documents[i];
+                    Timestamp teste = mypost['data'];
+                    DateTime cloudDate = teste.toDate();
+                      markers.add(
+                        Marker(
+                            markerId: MarkerId(mypost.documentID),
+                            position: LatLng(mypost['coord'].latitude,
+                                mypost['coord'].longitude),
+                            infoWindow: InfoWindow(title: mypost['nomeDaArvore'],snippet:"teste")),
                       );
-                    }
+
                   }
-                } catch (e) {
-                  print(e);
-                  return Center(child: CircularProgressIndicator());
+                  return GoogleMap(
+                    mapType: MapType.normal,
+                    myLocationEnabled: true,
+                    initialCameraPosition: _initialCamera,
+                    onMapCreated: (GoogleMapController controller) {
+                      _controller.complete(controller);
+                    },
+                    markers: markers,
+                    polylines: Set<Polyline>.of(polylines.values),
+                  );
                 }
-              })
+              }
+            } catch (e) {
+              print(e);
+              return Center(child: CircularProgressIndicator());
+            }
+          })
           : GoogleMap(
-              mapType: MapType.normal,
-              myLocationEnabled: true,
-              initialCameraPosition: _initialCamera,
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
-              markers: markers,
-            ),
+        mapType: MapType.normal,
+        myLocationEnabled: true,
+        initialCameraPosition: _initialCamera,
+        onMapCreated: (GoogleMapController controller) {
+          _controller.complete(controller);
+        },
+        markers: markers,
+      ),
       floatingActionButton: new FloatingActionButton(
         onPressed: () {
           if (onibus != null) {
@@ -544,9 +539,9 @@ class _MyAppState extends State<MyApp2> {
         tooltip: 'Stop Track Location',
         child: (oi == true)
             ? Text(
-                onibusCompartilha,
-                style: TextStyle(color: Colors.white),
-              )
+          onibusCompartilha,
+          style: TextStyle(color: Colors.white),
+        )
             : Icon(Icons.directions_bus),
         backgroundColor: (oi == true) ? Colors.green : Colors.red,
       ),
@@ -564,14 +559,14 @@ class _MyAppState extends State<MyApp2> {
     print(user.uid);
     var data = {
       "image":
-          "https://st.depositphotos.com/3538103/5175/i/950/depositphotos_51751599-stock-photo-bus-icon.jpg",
+      "https://st.depositphotos.com/3538103/5175/i/950/depositphotos_51751599-stock-photo-bus-icon.jpg",
       "coords": GeoPoint(_currentLocation.latitude, _currentLocation.longitude),
     };
 
     var dataBus = {
       "user": user.uid,
       "location":
-          GeoPoint(_currentLocation.latitude, _currentLocation.longitude),
+      GeoPoint(_currentLocation.latitude, _currentLocation.longitude),
       "date": Timestamp.fromDate(DateTime.now().add(Duration(hours: 1))),
       "report": 0,
       "parada": false,
@@ -646,14 +641,14 @@ class _MyAppState extends State<MyApp2> {
     print(user.uid);
     var data = {
       "image":
-          "https://st.depositphotos.com/3538103/5175/i/950/depositphotos_51751599-stock-photo-bus-icon.jpg",
+      "https://st.depositphotos.com/3538103/5175/i/950/depositphotos_51751599-stock-photo-bus-icon.jpg",
       "coords": GeoPoint(_currentLocation.latitude, _currentLocation.longitude),
     };
 
     var dataBus = {
       "user": user.uid,
       "location":
-          GeoPoint(_currentLocation.latitude, _currentLocation.longitude),
+      GeoPoint(_currentLocation.latitude, _currentLocation.longitude),
     };
 
     _firestore
@@ -694,7 +689,7 @@ class _MyAppState extends State<MyApp2> {
   }
   _getPolyline(var poli)async
   {
-    
+
     /*List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(googleAPiKey,
         _originLatitude, _originLongitude, _destLatitude, _destLongitude);*/
     List<PointLatLng> result = polylinePoints.decodePolyline(poli);
